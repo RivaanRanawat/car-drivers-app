@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:car_driver_app/universal_variables.dart';
 import 'package:car_driver_app/widgets/reusable_button.dart';
+import 'package:firebase_database/firebase_database.dart';
 import "package:flutter/material.dart";
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -15,6 +17,7 @@ class _HomeTabState extends State<HomeTab> {
   GoogleMapController mapController;
   Completer<GoogleMapController> _controller = Completer();
   Position currentPos;
+  DatabaseReference tripReqRef;
 
   void getCurrentPosition() async {
     Position position = await Geolocator().getCurrentPosition(
@@ -58,7 +61,9 @@ class _HomeTabState extends State<HomeTab> {
                 child: ReusableButton(
                   text: "GO ONLINE",
                   color: UniversalVariables.colorOrange,
-                  onPressed: () {},
+                  onPressed: () {
+                    goOnline();
+                  },
                 ),
               ),
             ],
@@ -66,5 +71,18 @@ class _HomeTabState extends State<HomeTab> {
         )
       ],
     );
+  }
+
+  void goOnline() {
+    Geofire.initialize("driversAvailable");
+    Geofire.setLocation(
+        currentFirebaseUser.uid, currentPos.latitude, currentPos.longitude);
+
+    tripReqRef = FirebaseDatabase.instance
+        .reference()
+        .child("drivers/${currentFirebaseUser.uid}/newTrip");
+    tripReqRef.set("waiting");
+
+    tripReqRef.onValue.listen((event) {});
   }
 }
