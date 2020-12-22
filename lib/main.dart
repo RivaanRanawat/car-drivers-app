@@ -1,8 +1,11 @@
+import 'package:car_driver_app/universal_variables.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import "./screens/home_screen.dart";
 import "./screens/login_screen.dart";
 import "./screens/signup_screen.dart";
+import "./screens/vehicleinfo_screen.dart";
 import "dart:io";
 
 Future<void> main() async {
@@ -23,6 +26,8 @@ Future<void> main() async {
           ),
   );
 
+  currentFirebaseUser = await FirebaseAuth.instance.currentUser();
+
   runApp(MyApp());
 }
 
@@ -37,11 +42,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: SignUpScreen.id,
+      initialRoute: (currentFirebaseUser == null) ? LoginScreen.id : HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => HomeScreen(),
         LoginScreen.id: (context) => LoginScreen(),
-        SignUpScreen.id: (context) => SignUpScreen()
+        SignUpScreen.id: (context) => SignUpScreen(),
+        VehicleInfoScreen.id: (context) => VehicleInfoScreen()
       },
     );
   }

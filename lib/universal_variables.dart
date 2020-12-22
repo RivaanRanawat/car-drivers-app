@@ -35,3 +35,4 @@ class UniversalVariables {
     zoom: 14.4746,
   );
 }
+FirebaseUser currentFirebaseUser;

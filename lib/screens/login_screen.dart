@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     })).user;
 
     if(user != null) {
-      DatabaseReference userRef = FirebaseDatabase.instance.reference().child("users/${user.uid}");
+      DatabaseReference userRef = FirebaseDatabase.instance.reference().child("drivers/${user.uid}");
       userRef.once().then((DataSnapshot snapshot) {
         if(snapshot.value != null) {
           Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);

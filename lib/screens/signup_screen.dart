@@ -1,5 +1,6 @@
 import 'package:car_driver_app/screens/home_screen.dart';
 import 'package:car_driver_app/screens/login_screen.dart';
+import 'package:car_driver_app/screens/vehicleinfo_screen.dart';
 import 'package:car_driver_app/universal_variables.dart';
 import 'package:car_driver_app/widgets/progress_dialog.dart';
 import 'package:car_driver_app/widgets/reusable_button.dart';
@@ -57,7 +58,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       };
 
       reference.set(userMap);
-      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
+      currentFirebaseUser = user;
+
+      Navigator.pushNamed(context, VehicleInfoScreen.id);
     }
   }
 
