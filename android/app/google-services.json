@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "74445978662",
+    "firebase_url": "https://cab-rider-app-default-rtdb.firebaseio.com",
+    "project_id": "cab-rider-app",
+    "storage_bucket": "cab-rider-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74445978662:android:4cea5c5cb0bb8e50163ae7",
+        "android_client_info": {
+          "package_name": "com.example.car_driver_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "74445978662-5qq6ti2u8j5ghuulks0kt4u6h0bhvq54.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlN5S_ny58G9dUgtHIcJPt2HdFopOoDyQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "74445978662-5qq6ti2u8j5ghuulks0kt4u6h0bhvq54.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74445978662:android:58946ceeb822317b163ae7",
+        "android_client_info": {
+          "package_name": "com.rivaanrranawatapps.car_rider_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "74445978662-5qq6ti2u8j5ghuulks0kt4u6h0bhvq54.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlN5S_ny58G9dUgtHIcJPt2HdFopOoDyQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "74445978662-5qq6ti2u8j5ghuulks0kt4u6h0bhvq54.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
