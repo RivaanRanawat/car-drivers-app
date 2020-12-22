@@ -19,6 +19,10 @@ class _HomeTabState extends State<HomeTab> {
   Completer<GoogleMapController> _controller = Completer();
   Position currentPos;
   DatabaseReference tripReqRef;
+  String availabilityText = "GO ONLINE";
+  Color availabilityColor = UniversalVariables.colorOrange;
+
+  bool isAvailable = false;
 
   var geolocator = Geolocator();
   var locationOptions = LocationOptions(
@@ -64,13 +68,42 @@ class _HomeTabState extends State<HomeTab> {
                 height: 50,
                 width: 200,
                 child: ReusableButton(
-                  text: "GO ONLINE",
-                  color: UniversalVariables.colorOrange,
+                  text: availabilityText,
+                  color: availabilityColor,
                   onPressed: () {
-                    // goOnline();
-                    // getLocationUpdates();
+                    showModalBottomSheet(
+                      isDismissible: false,
+                      context: context,
+                      builder: (BuildContext context) => ConfirmSheet(
+                        title: (!isAvailable) ? "GO ONLINE" : "GO OFFLINE",
+                        subtitle: (!isAvailable)
+                            ? "You are about to become available to recieve trip requests"
+                            : "You will stop receiving new trip requests",
+                        onPressed: () {
+                          if (!isAvailable) {
+                            goOnline();
+                            getLocationUpdates();
+                            Navigator.of(context).pop();
 
-                    showModalBottomSheet(isDismissible: false,context: context, builder: (BuildContext context) => ConfirmSheet());
+                            setState(() {
+                              availabilityColor = UniversalVariables.colorGreen;
+                              availabilityText = "GO OFFLINE";
+                              isAvailable = true;
+                            });
+                          } else {
+                            goOffline();
+                            Navigator.of(context).pop();
+
+                            setState(() {
+                              availabilityColor =
+                                  UniversalVariables.colorOrange;
+                              availabilityText = "GO ONLINE";
+                              isAvailable = false;
+                            });
+                          }
+                        },
+                      ),
+                    );
                   },
                 ),
               ),
@@ -94,13 +127,23 @@ class _HomeTabState extends State<HomeTab> {
     tripReqRef.onValue.listen((event) {});
   }
 
+  void goOffline() {
+    Geofire.removeLocation(currentFirebaseUser.uid);
+    tripReqRef.onDisconnect();
+    tripReqRef.remove();
+    tripReqRef = null;
+  }
+
   void getLocationUpdates() {
     homeTabPositionStream = geolocator
         .getPositionStream(locationOptions)
         .listen((Position position) {
       currentPos = position;
-      Geofire.setLocation(
-          currentFirebaseUser.uid, position.latitude, position.longitude);
+
+      if (isAvailable) {
+        Geofire.setLocation(
+            currentFirebaseUser.uid, position.latitude, position.longitude);
+      }
 
       LatLng pos = LatLng(position.latitude, position.longitude);
       mapController.animateCamera(CameraUpdate.newLatLng(pos));

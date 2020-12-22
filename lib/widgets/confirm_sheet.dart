@@ -3,6 +3,12 @@ import "package:flutter/material.dart";
 import 'package:car_driver_app/widgets/TaxiOutlineButton.dart';
 
 class ConfirmSheet extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final Function onPressed;
+
+  ConfirmSheet({this.title, this.subtitle, this.onPressed});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,7 +32,7 @@ class ConfirmSheet extends StatelessWidget {
               height: 10,
             ),
             Text(
-              "GO ONLINE",
+              title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22,
@@ -38,7 +44,7 @@ class ConfirmSheet extends StatelessWidget {
               height: 20,
             ),
             Text(
-              "You are about to become avaialble to recieve trip requests",
+              subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: UniversalVariables.colorTextLight,
@@ -64,7 +70,7 @@ class ConfirmSheet extends StatelessWidget {
                     child: TaxiOutlineButton(
                       title: "CONFIRM",
                       color: UniversalVariables.colorGreen,
-                      onPressed: () {},
+                      onPressed: onPressed,
                     ),
                   ),
                 )
