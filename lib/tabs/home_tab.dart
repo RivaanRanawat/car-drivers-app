@@ -7,6 +7,7 @@ import "package:flutter/material.dart";
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import "package:car_driver_app/widgets/confirm_sheet.dart";
 
 class HomeTab extends StatefulWidget {
   @override
@@ -66,8 +67,10 @@ class _HomeTabState extends State<HomeTab> {
                   text: "GO ONLINE",
                   color: UniversalVariables.colorOrange,
                   onPressed: () {
-                    goOnline();
-                    getLocationUpdates();
+                    // goOnline();
+                    // getLocationUpdates();
+
+                    showModalBottomSheet(isDismissible: false,context: context, builder: (BuildContext context) => ConfirmSheet());
                   },
                 ),
               ),
