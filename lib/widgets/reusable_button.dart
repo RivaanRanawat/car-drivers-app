@@ -1,4 +1,3 @@
-import 'package:car_driver_app/universal_variables.dart';
 import "package:flutter/material.dart";
 
 class ReusableButton extends StatelessWidget {
