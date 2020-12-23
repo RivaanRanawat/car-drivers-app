@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:car_driver_app/models/tripDetails.dart';
 import 'package:car_driver_app/universal_variables.dart';
+import 'package:car_driver_app/widgets/notification_dialog.dart';
 import 'package:car_driver_app/widgets/progress_dialog.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -84,7 +85,11 @@ class PushNotificationService {
         tripDetails.pickupAddress = pickupAddress;
         tripDetails.rideId = rideId;
 
-        print(tripDetails.destinationAddress);
+        showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (BuildContext context) =>
+                            NotificationDialog(tripDetails));
       }
     });
   }

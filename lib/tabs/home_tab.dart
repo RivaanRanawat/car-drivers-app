@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:car_driver_app/helpers/pushNotificationService.dart';
 import 'package:car_driver_app/universal_variables.dart';
+import 'package:car_driver_app/widgets/notification_dialog.dart';
 import 'package:car_driver_app/widgets/reusable_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -43,7 +44,7 @@ class _HomeTabState extends State<HomeTab> {
     PushNotificationService pushNotificationService = PushNotificationService();
 
     pushNotificationService.initialize(context);
-    pushNotificationService.getToken();    
+    pushNotificationService.getToken();
   }
 
   @override
@@ -87,6 +88,7 @@ class _HomeTabState extends State<HomeTab> {
                   text: availabilityText,
                   color: availabilityColor,
                   onPressed: () {
+                    
                     showModalBottomSheet(
                       isDismissible: false,
                       context: context,
