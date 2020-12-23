@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:car_driver_app/models/tripDetails.dart';
 import 'package:car_driver_app/universal_variables.dart';
 import 'package:car_driver_app/widgets/notification_dialog.dart';
@@ -62,6 +63,8 @@ class PushNotificationService {
     rideRef.once().then((DataSnapshot snapshot) {
       Navigator.of(context).pop();
       if (snapshot.value != null) {
+        assetsAudioPlayer.open(Audio("assets/audio/alert.mp3"));
+        assetsAudioPlayer.play();
         double pickupLat =
             double.parse(snapshot.value["location"]["latitude"].toString());
         double pickupLng =
@@ -86,10 +89,9 @@ class PushNotificationService {
         tripDetails.rideId = rideId;
 
         showDialog(
-                        context: context,
-                        barrierDismissible: true,
-                        builder: (BuildContext context) =>
-                            NotificationDialog(tripDetails));
+            context: context,
+            barrierDismissible: true,
+            builder: (BuildContext context) => NotificationDialog(tripDetails));
       }
     });
   }

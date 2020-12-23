@@ -90,7 +90,10 @@ class NotificationDialog extends StatelessWidget {
                       child: TaxiOutlineButton(
                         title: "DECLINE",
                         color: UniversalVariables.colorPrimary,
-                        onPressed: () async {},
+                        onPressed: () async {
+                          assetsAudioPlayer.stop();
+                          Navigator.of(context).pop();
+                        },
                       ),
                     ),
                   ),
@@ -100,7 +103,9 @@ class NotificationDialog extends StatelessWidget {
                       child: TaxiOutlineButton(
                         title: "ACCEPT",
                         color: UniversalVariables.colorGreen,
-                        onPressed: () async {},
+                        onPressed: () async {
+                          assetsAudioPlayer.stop();
+                        },
                       ),
                     ),
                   ),
