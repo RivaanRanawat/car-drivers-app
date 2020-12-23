@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:car_driver_app/helpers/helperRepository.dart';
 import 'package:car_driver_app/models/tripDetails.dart';
 import 'package:car_driver_app/universal_variables.dart';
+import 'package:car_driver_app/widgets/progress_dialog.dart';
 import 'package:car_driver_app/widgets/reusable_button.dart';
 import "package:flutter/material.dart";
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class NewTripsScreen extends StatefulWidget {
@@ -18,20 +21,47 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
   GoogleMapController rideMapController;
   Completer<GoogleMapController> _controller = Completer();
 
+  Set<Marker> _markers = Set<Marker>();
+  Set<Circle> _circles = Set<Circle>();
+  Set<Polyline> _polyLines = Set<Polyline>();
+
+  List<LatLng> polyLineCordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+
+  double mapPaddingBottom = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           GoogleMap(
-            padding: EdgeInsets.only(top: 135),
+            padding: EdgeInsets.only(bottom: mapPaddingBottom),
             myLocationButtonEnabled: true,
             myLocationEnabled: true,
+            compassEnabled: true,
+            mapToolbarEnabled: true,
             initialCameraPosition: UniversalVariables.googlePlex,
             mapType: MapType.normal,
-            onMapCreated: (GoogleMapController controller) {
+            circles: _circles,
+            trafficEnabled: true,
+            polylines: _polyLines,
+            markers: _markers,
+            onMapCreated: (GoogleMapController controller) async {
               _controller.complete();
               rideMapController = controller;
+              setState(() {
+                mapPaddingBottom = 260;
+              });
+
+              var currentLatLng =
+                  LatLng(currentPos.latitude, currentPos.longitude);
+              var pickupLatLng = widget.tripDetails.pickup;
+
+              print("current lat lng $currentLatLng");
+              print("pickup lat lng $pickupLatLng");
+
+              await getDirection(currentLatLng, pickupLatLng);
             },
           ),
           Positioned(
@@ -55,7 +85,8 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
               ),
               height: 255,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -145,5 +176,113 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> getDirection(
+      LatLng pickupLatLng, LatLng destinationLatLng) async {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) => ProgressDialog(
+              status: 'Please wait...',
+            ));
+
+    var thisDetails = await HelperRepository.getDirectionDetails(
+        pickupLatLng, destinationLatLng);
+
+    Navigator.pop(context);
+
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> results =
+        polylinePoints.decodePolyline(thisDetails.encodedPoints);
+    polyLineCordinates.clear();
+
+    if (results.isNotEmpty) {
+      results.forEach((PointLatLng point) {
+        polyLineCordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+
+    _polyLines.clear();
+
+    setState(() {
+      Polyline polyline = Polyline(
+        polylineId: PolylineId('polyid'),
+        color: Color.fromARGB(255, 95, 109, 237),
+        points: polyLineCordinates,
+        jointType: JointType.round,
+        width: 4,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        geodesic: true,
+      );
+
+      _polyLines.add(polyline);
+    });
+
+    // make polyline to fit into the map
+
+    LatLngBounds bounds;
+
+    if (pickupLatLng.latitude > destinationLatLng.latitude &&
+        pickupLatLng.longitude > destinationLatLng.longitude) {
+      bounds =
+          LatLngBounds(southwest: destinationLatLng, northeast: pickupLatLng);
+    } else if (pickupLatLng.longitude > destinationLatLng.longitude) {
+      bounds = LatLngBounds(
+          southwest: LatLng(pickupLatLng.latitude, destinationLatLng.longitude),
+          northeast:
+              LatLng(destinationLatLng.latitude, pickupLatLng.longitude));
+    } else if (pickupLatLng.latitude > destinationLatLng.latitude) {
+      bounds = LatLngBounds(
+        southwest: LatLng(destinationLatLng.latitude, pickupLatLng.longitude),
+        northeast: LatLng(pickupLatLng.latitude, destinationLatLng.longitude),
+      );
+    } else {
+      bounds =
+          LatLngBounds(southwest: pickupLatLng, northeast: destinationLatLng);
+    }
+
+    rideMapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 70));
+
+    Marker pickupMarker = Marker(
+      markerId: MarkerId('pickup'),
+      position: pickupLatLng,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    );
+
+    Marker destinationMarker = Marker(
+      markerId: MarkerId('destination'),
+      position: destinationLatLng,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+    );
+
+    setState(() {
+      _markers.add(pickupMarker);
+      _markers.add(destinationMarker);
+    });
+
+    Circle pickupCircle = Circle(
+      circleId: CircleId('pickup'),
+      strokeColor: Colors.green,
+      strokeWidth: 3,
+      radius: 12,
+      center: pickupLatLng,
+      fillColor: UniversalVariables.colorGreen,
+    );
+
+    Circle destinationCircle = Circle(
+      circleId: CircleId('destination'),
+      strokeColor: UniversalVariables.colorAccentPurple,
+      strokeWidth: 3,
+      radius: 12,
+      center: destinationLatLng,
+      fillColor: UniversalVariables.colorAccentPurple,
+    );
+
+    setState(() {
+      _circles.add(pickupCircle);
+      _circles.add(destinationCircle);
+    });
   }
 }

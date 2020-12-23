@@ -20,7 +20,6 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   GoogleMapController mapController;
   Completer<GoogleMapController> _controller = Completer();
-  Position currentPos;
   DatabaseReference tripReqRef;
   String availabilityText = "GO ONLINE";
   Color availabilityColor = UniversalVariables.colorOrange;
