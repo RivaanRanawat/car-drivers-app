@@ -1,3 +1,4 @@
+import 'package:car_driver_app/helpers/helperRepository.dart';
 import 'package:car_driver_app/models/tripDetails.dart';
 import 'package:car_driver_app/screens/newTrips_screen.dart';
 import 'package:car_driver_app/universal_variables.dart';
@@ -148,6 +149,7 @@ class NotificationDialog extends StatelessWidget {
 
         if(thisRideId == tripDetails.rideId) {
           newRideRef.set("accepted");
+          HelperRepository.disableHomeTabLocUpdates();
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewTripsScreen(tripDetails)));
         } else if(thisRideId == "cancelled") {
           Toast.show("Ride has been cancelled", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);

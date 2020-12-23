@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:car_driver_app/helpers/requestHelpers.dart';
 import 'package:car_driver_app/models/directionDetails.dart';
 import 'package:car_driver_app/universal_variables.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HelperRepository {
@@ -53,5 +54,15 @@ class HelperRepository {
     var randomGenerator = Random();
     int radInt = randomGenerator.nextInt(max);
     return radInt.toDouble();
+  }
+
+  static void disableHomeTabLocUpdates() {
+    homeTabPositionStream.pause();
+    Geofire.removeLocation(currentFirebaseUser.uid);
+  }
+
+  static void enableHomeTabLocationUpdates() {
+    homeTabPositionStream.resume();
+    Geofire.setLocation(currentFirebaseUser.uid, currentPos.latitude, currentPos.longitude);
   }
 }
