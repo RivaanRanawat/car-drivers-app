@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:car_driver_app/helpers/pushNotificationService.dart';
 import 'package:car_driver_app/universal_variables.dart';
 import 'package:car_driver_app/widgets/reusable_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_geofire/flutter_geofire.dart';
@@ -34,6 +36,20 @@ class _HomeTabState extends State<HomeTab> {
     currentPos = position;
     LatLng pos = LatLng(position.latitude, position.longitude);
     mapController.animateCamera(CameraUpdate.newLatLng(pos));
+  }
+
+  void getCurrentDriverInfo() async {
+    currentFirebaseUser = await FirebaseAuth.instance.currentUser();
+    PushNotificationService pushNotificationService = PushNotificationService();
+
+    pushNotificationService.initialize();
+    pushNotificationService.getToken();    
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentDriverInfo();
   }
 
   @override
