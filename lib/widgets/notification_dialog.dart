@@ -1,8 +1,12 @@
 import 'package:car_driver_app/models/tripDetails.dart';
+import 'package:car_driver_app/screens/newTrips_screen.dart';
 import 'package:car_driver_app/universal_variables.dart';
 import 'package:car_driver_app/widgets/TaxiOutlineButton.dart';
+import 'package:car_driver_app/widgets/progress_dialog.dart';
 import 'package:car_driver_app/widgets/reusable_divider.dart';
+import 'package:firebase_database/firebase_database.dart';
 import "package:flutter/material.dart";
+import 'package:toast/toast.dart';
 
 class NotificationDialog extends StatelessWidget {
   final TripDetails tripDetails;
@@ -105,6 +109,7 @@ class NotificationDialog extends StatelessWidget {
                         color: UniversalVariables.colorGreen,
                         onPressed: () async {
                           assetsAudioPlayer.stop();
+                          checkAvailability(context);
                         },
                       ),
                     ),
@@ -120,4 +125,37 @@ class NotificationDialog extends StatelessWidget {
       ),
     );
   }
+
+  void checkAvailability(context) {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) =>
+            ProgressDialog(status: "Accepting request.."));
+
+      DatabaseReference newRideRef = FirebaseDatabase.instance.reference().child("drivers/${currentFirebaseUser.uid}/newTrip");
+      newRideRef.once().then((DataSnapshot snapshot) {
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+
+        String thisRideId = "";
+
+        if(snapshot.value != null) {
+          thisRideId = snapshot.value.toString();
+        } else {
+          print("ride not found");
+        }
+
+        if(thisRideId == tripDetails.rideId) {
+          newRideRef.set("accepted");
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewTripsScreen(tripDetails)));
+        } else if(thisRideId == "cancelled") {
+          Toast.show("Ride has been cancelled", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+        } else if(thisRideId == "timeout") {
+          Toast.show("Ride has timed out", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+        } else {
+          Toast.show("Ride not found", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+        }
+      });
+    }
 }
