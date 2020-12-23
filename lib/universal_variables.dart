@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:car_driver_app/models/driver.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -41,8 +42,10 @@ class UniversalVariables {
     zoom: 14.4746,
   );
 }
+
 FirebaseUser currentFirebaseUser;
 StreamSubscription<Position> homeTabPositionStream;
 final assetsAudioPlayer = AssetsAudioPlayer();
 Position currentPos;
 DatabaseReference rideRef;
+Driver currentDriverInfo;

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:car_driver_app/helpers/pushNotificationService.dart';
+import 'package:car_driver_app/models/driver.dart';
 import 'package:car_driver_app/universal_variables.dart';
 import 'package:car_driver_app/widgets/notification_dialog.dart';
 import 'package:car_driver_app/widgets/reusable_button.dart';
@@ -40,11 +41,19 @@ class _HomeTabState extends State<HomeTab> {
 
   void getCurrentDriverInfo() async {
     currentFirebaseUser = await FirebaseAuth.instance.currentUser();
+    DatabaseReference driverRef = FirebaseDatabase.instance.reference().child("drivers/${currentFirebaseUser.uid}");
+    driverRef.once().then((DataSnapshot snapshot) {
+      if(snapshot.value != null) {
+        currentDriverInfo = Driver.fromSnapshot(snapshot);
+
+      }
+    });
     PushNotificationService pushNotificationService = PushNotificationService();
 
     pushNotificationService.initialize(context);
     pushNotificationService.getToken();
   }
+  
 
   @override
   void initState() {

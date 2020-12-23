@@ -5,6 +5,7 @@ import 'package:car_driver_app/models/tripDetails.dart';
 import 'package:car_driver_app/universal_variables.dart';
 import 'package:car_driver_app/widgets/progress_dialog.dart';
 import 'package:car_driver_app/widgets/reusable_button.dart';
+import 'package:firebase_database/firebase_database.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -29,6 +30,12 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
   PolylinePoints polylinePoints = PolylinePoints();
 
   double mapPaddingBottom = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    acceptTrip();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +183,24 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
         ],
       ),
     );
+  }
+
+  void acceptTrip() {
+    String rideId = widget.tripDetails.rideId;
+    rideRef = FirebaseDatabase.instance.reference().child("rideRequest/$rideId");
+    rideRef.child("status").set("accepted");
+    rideRef.child("driver_name").set(currentDriverInfo.fullName);
+    rideRef.child("car_details").set("${currentDriverInfo.carColour} - ${currentDriverInfo.carModel}");
+    rideRef.child("driver_phone").set(currentDriverInfo.phone);
+    rideRef.child("driver_id").set(currentDriverInfo.id);
+
+    Map locationMap = {
+      "latitude": currentPos.latitude.toString(),
+      "longitude": currentPos.longitude.toString(),
+    };
+
+    rideRef.child("driver location").set(locationMap);
+
   }
 
   Future<void> getDirection(
