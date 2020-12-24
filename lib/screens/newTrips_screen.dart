@@ -8,6 +8,7 @@ import 'package:car_driver_app/widgets/reusable_button.dart';
 import 'package:firebase_database/firebase_database.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class NewTripsScreen extends StatefulWidget {
@@ -31,6 +32,25 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
 
   double mapPaddingBottom = 0;
 
+  var geoLocator = Geolocator();
+  var locationOptions =
+      LocationOptions(accuracy: LocationAccuracy.bestForNavigation);
+  Position myPosition;
+
+  BitmapDescriptor movingMarkerIcon;
+
+  void createMarker() {
+    if (movingMarkerIcon == null) {
+      ImageConfiguration imageConfiguration =
+          createLocalImageConfiguration(context, size: Size(2, 2));
+      BitmapDescriptor.fromAssetImage(
+              imageConfiguration, "assets/images/car_android.png")
+          .then((value) {
+        movingMarkerIcon = value;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +59,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    createMarker();
     return Scaffold(
       body: Stack(
         children: [
@@ -69,6 +90,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
               print("pickup lat lng $pickupLatLng");
 
               await getDirection(currentLatLng, pickupLatLng);
+              getLocationUpdates();
             },
           ),
           Positioned(
@@ -187,10 +209,13 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
 
   void acceptTrip() {
     String rideId = widget.tripDetails.rideId;
-    rideRef = FirebaseDatabase.instance.reference().child("rideRequest/$rideId");
+    rideRef =
+        FirebaseDatabase.instance.reference().child("rideRequest/$rideId");
     rideRef.child("status").set("accepted");
     rideRef.child("driver_name").set(currentDriverInfo.fullName);
-    rideRef.child("car_details").set("${currentDriverInfo.carColour} - ${currentDriverInfo.carModel}");
+    rideRef
+        .child("car_details")
+        .set("${currentDriverInfo.carColour} - ${currentDriverInfo.carModel}");
     rideRef.child("driver_phone").set(currentDriverInfo.phone);
     rideRef.child("driver_id").set(currentDriverInfo.id);
 
@@ -200,7 +225,31 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
     };
 
     rideRef.child("driver location").set(locationMap);
+  }
 
+  void getLocationUpdates() {
+    ridePositionStream = geoLocator
+        .getPositionStream(locationOptions)
+        .listen((Position position) {
+      myPosition = position;
+      currentPos = position;
+      LatLng pos = LatLng(position.latitude, position.longitude);
+
+      Marker movingMarker = Marker(
+        markerId: MarkerId("moving"),
+        position: pos,
+        icon: movingMarkerIcon,
+        infoWindow: InfoWindow(title: "Current Location"),
+      );
+
+      setState(() {
+        CameraPosition cp = new CameraPosition(target: pos, zoom: 17);
+        rideMapController.animateCamera(CameraUpdate.newCameraPosition(cp));
+
+        _markers.removeWhere((element) => element.markerId.value == "moving");
+        _markers.add(movingMarker);
+      });
+    });
   }
 
   Future<void> getDirection(

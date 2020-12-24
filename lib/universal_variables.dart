@@ -49,3 +49,4 @@ final assetsAudioPlayer = AssetsAudioPlayer();
 Position currentPos;
 DatabaseReference rideRef;
 Driver currentDriverInfo;
+StreamSubscription<Position> ridePositionStream;
