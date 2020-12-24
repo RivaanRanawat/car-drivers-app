@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:car_driver_app/helpers/helperRepository.dart';
+import 'package:car_driver_app/helpers/mapKitHelper.dart';
 import 'package:car_driver_app/models/tripDetails.dart';
 import 'package:car_driver_app/universal_variables.dart';
 import 'package:car_driver_app/widgets/progress_dialog.dart';
@@ -228,6 +229,8 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
   }
 
   void getLocationUpdates() {
+    LatLng oldPosition = LatLng(0, 0);
+
     ridePositionStream = geoLocator
         .getPositionStream(locationOptions)
         .listen((Position position) {
@@ -235,10 +238,14 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
       currentPos = position;
       LatLng pos = LatLng(position.latitude, position.longitude);
 
+      var rotation = MapKitHelper.getMarkerRotation(oldPosition.latitude, oldPosition.longitude, pos.latitude, pos.longitude);
+
+
       Marker movingMarker = Marker(
         markerId: MarkerId("moving"),
         position: pos,
         icon: movingMarkerIcon,
+        rotation: rotation,
         infoWindow: InfoWindow(title: "Current Location"),
       );
 
@@ -249,6 +256,8 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
         _markers.removeWhere((element) => element.markerId.value == "moving");
         _markers.add(movingMarker);
       });
+
+      oldPosition = pos;
     });
   }
 

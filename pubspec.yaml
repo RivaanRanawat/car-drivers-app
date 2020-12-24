@@ -44,6 +44,7 @@ dependencies:
   animated_text_kit: ^3.1.0
   assets_audio_player: ^2.0.13+1
   toast: ^0.1.5
+  maps_toolkit: ^1.1.0+1
 
 dev_dependencies:
   flutter_test:
