@@ -40,6 +40,11 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
 
   BitmapDescriptor movingMarkerIcon;
 
+  String status = "accepted";
+
+  String durationString = "";
+  bool isRequestingDirection = false;
+
   void createMarker() {
     if (movingMarkerIcon == null) {
       ImageConfiguration imageConfiguration =
@@ -121,7 +126,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "14 min",
+                      durationString,
                       style: TextStyle(
                           fontSize: 14,
                           fontFamily: "Bolt-Semibold",
@@ -238,8 +243,8 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
       currentPos = position;
       LatLng pos = LatLng(position.latitude, position.longitude);
 
-      var rotation = MapKitHelper.getMarkerRotation(oldPosition.latitude, oldPosition.longitude, pos.latitude, pos.longitude);
-
+      var rotation = MapKitHelper.getMarkerRotation(oldPosition.latitude,
+          oldPosition.longitude, pos.latitude, pos.longitude);
 
       Marker movingMarker = Marker(
         markerId: MarkerId("moving"),
@@ -258,7 +263,40 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
       });
 
       oldPosition = pos;
+      updateTripDetails();
+      Map locationMap = {
+        "latitude": myPosition.latitude.toString(),
+        "longitude": myPosition.longitude.toString()
+      };
+      rideRef.child("driver_location").set(locationMap);
     });
+  }
+
+  void updateTripDetails() async {
+    if (!isRequestingDirection) {
+      isRequestingDirection = true;
+      if (myPosition == null) {
+        return;
+      }
+      var positionLatLng = LatLng(myPosition.latitude, myPosition.longitude);
+      LatLng destinationLatLng;
+
+      if (status == "accepted") {
+        destinationLatLng = widget.tripDetails.pickup;
+      } else {
+        destinationLatLng = widget.tripDetails.destination;
+      }
+
+      var directionDetails = await HelperRepository.getDirectionDetails(
+          positionLatLng, destinationLatLng);
+
+      if (directionDetails != null) {
+        setState(() {
+          durationString = directionDetails.durationText;
+        });
+      }
+      isRequestingDirection = false;
+    }
   }
 
   Future<void> getDirection(
