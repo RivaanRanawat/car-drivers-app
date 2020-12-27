@@ -40,7 +40,7 @@ class HelperRepository {
     return directionDetails;
   }
 
-  static int estimateFares(DirectionDetails details) {
+  static int estimateFares(DirectionDetails details, int durationValue) {
     // Calculate fares:
     // BASE FARE(because rider sat in the vehicle) + DISTANCE FARE(amt for every km)+ TIME FARE(amt for every minute)
     // we will charge:
@@ -50,7 +50,7 @@ class HelperRepository {
 
     double baseFare = 40;
     double distanceFare = (details.distanceValue / 1000) * 20;
-    double timeFare = (details.durationValue / 60) * 5;
+    double timeFare = (durationValue / 60) * 5;
 
     double totalFare = baseFare + distanceFare + timeFare;
 

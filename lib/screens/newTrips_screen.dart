@@ -227,8 +227,10 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                           setState(() {
                             buttonTitle = "END TRIP";
                             buttonColor = Colors.red[900];
-                            startTimer();
                           });
+                          startTimer();
+                        } else if(status == "onTrip") {
+                          endTrip();
                         }
                       },
                     ),
@@ -441,5 +443,17 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
     timer = Timer.periodic(interval, (timer) {
       durationCounter++;
     });
+  }
+
+  void endTrip() async{
+    timer.cancel();
+    HelperRepository.showProgressDialog(context);
+    var currentLatLng = LatLng(myPosition.latitude, myPosition.longitude);
+    var directionDetails= await HelperRepository.getDirectionDetails(widget.tripDetails.pickup, currentLatLng);
+    Navigator.of(context).pop();
+    int fares = HelperRepository.estimateFares(directionDetails, durationCounter);
+    rideRef.child("fares").set(fares.toString());
+    rideRef.child("status").set("ended");
+    ridePositionStream.cancel();
   }
 }
