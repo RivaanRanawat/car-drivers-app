@@ -210,7 +210,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                       text: buttonTitle,
                       color: buttonColor,
                       onPressed: () async {
-                        if(status == "accepted") {
+                        if (status == "accepted") {
                           status = "arrived";
                           rideRef.child("status").set(("arrived"));
 
@@ -220,9 +220,10 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                           });
 
                           HelperRepository.showProgressDialog(context);
-                          await getDirection(widget.tripDetails.pickup, widget.tripDetails.destination);
+                          await getDirection(widget.tripDetails.pickup,
+                              widget.tripDetails.destination);
                           Navigator.of(context).pop();
-                        } else if(status == "arrived") {
+                        } else if (status == "arrived") {
                           status = "onTrip";
                           rideRef.child("status").set("onTrip");
                           setState(() {
@@ -230,7 +231,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                             buttonColor = Colors.red[900];
                           });
                           startTimer();
-                        } else if(status == "onTrip") {
+                        } else if (status == "onTrip") {
                           endTrip();
                         }
                       },
@@ -446,20 +447,42 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
     });
   }
 
-  void endTrip() async{
+  void endTrip() async {
     timer.cancel();
     HelperRepository.showProgressDialog(context);
     var currentLatLng = LatLng(myPosition.latitude, myPosition.longitude);
-    var directionDetails= await HelperRepository.getDirectionDetails(widget.tripDetails.pickup, currentLatLng);
+    var directionDetails = await HelperRepository.getDirectionDetails(
+        widget.tripDetails.pickup, currentLatLng);
     Navigator.of(context).pop();
-    int fares = HelperRepository.estimateFares(directionDetails, durationCounter);
+    int fares =
+        HelperRepository.estimateFares(directionDetails, durationCounter);
     rideRef.child("fares").set(fares.toString());
     rideRef.child("status").set("ended");
     ridePositionStream.cancel();
 
-    showDialog(context: context, barrierDismissible: false, builder: (BuildContext context) => CollectPaymentDialog(
-      paymentMethod: widget.tripDetails.paymentMethod,
-      fares: fares
-    ));
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => CollectPaymentDialog(
+            paymentMethod: widget.tripDetails.paymentMethod, fares: fares));
+    topUpEarnings(fares);
+  }
+
+  void topUpEarnings(int fares) {
+    DatabaseReference earningsRef = FirebaseDatabase.instance
+        .reference()
+        .child('drivers/${currentFirebaseUser.uid}/earnings');
+    earningsRef.once().then((DataSnapshot snapshot) {
+      if (snapshot.value != null) {
+        double oldEarnings = double.parse(snapshot.value.toString());
+
+        double adjustedEarnings = (fares.toDouble() * 0.85) + oldEarnings;
+
+        earningsRef.set(adjustedEarnings.toStringAsFixed(2));
+      } else {
+        double adjustedEarnings = (fares.toDouble() * 0.85);
+        earningsRef.set(adjustedEarnings.toStringAsFixed(2));
+      }
+    });
   }
 }
