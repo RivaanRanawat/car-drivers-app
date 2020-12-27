@@ -4,6 +4,7 @@ import 'package:car_driver_app/helpers/helperRepository.dart';
 import 'package:car_driver_app/helpers/mapKitHelper.dart';
 import 'package:car_driver_app/models/tripDetails.dart';
 import 'package:car_driver_app/universal_variables.dart';
+import 'package:car_driver_app/widgets/collect_payment_dialog.dart';
 import 'package:car_driver_app/widgets/progress_dialog.dart';
 import 'package:car_driver_app/widgets/reusable_button.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -455,5 +456,10 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
     rideRef.child("fares").set(fares.toString());
     rideRef.child("status").set("ended");
     ridePositionStream.cancel();
+
+    showDialog(context: context, barrierDismissible: false, builder: (BuildContext context) => CollectPaymentDialog(
+      paymentMethod: widget.tripDetails.paymentMethod,
+      fares: fares
+    ));
   }
 }
