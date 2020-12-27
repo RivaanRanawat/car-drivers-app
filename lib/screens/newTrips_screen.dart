@@ -147,7 +147,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Rivaan Ranawat",
+                          widget.tripDetails.riderName,
                           style: TextStyle(
                               fontSize: 22, fontFamily: "Bolt-Semibold"),
                         ),
@@ -171,7 +171,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                         Expanded(
                           child: Container(
                             child: Text(
-                              "Ashok Smruti Building",
+                              widget.tripDetails.pickupAddress,
                               style: TextStyle(
                                 fontSize: 18,
                               ),
@@ -195,7 +195,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                         Expanded(
                           child: Container(
                             child: Text(
-                              "CNMS",
+                              widget.tripDetails.destinationAddress,
                               style: TextStyle(
                                 fontSize: 18,
                               ),
@@ -264,6 +264,8 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
     };
 
     rideRef.child("driver_location").set(locationMap);
+    DatabaseReference historyRef = FirebaseDatabase.instance.reference().child("drivers/${currentFirebaseUser.uid}/history/$rideId");
+    historyRef.set(true);
   }
 
   void getLocationUpdates() {

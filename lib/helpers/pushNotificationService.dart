@@ -79,6 +79,8 @@ class PushNotificationService {
             snapshot.value["destination_address"].toString();
 
         String paymentMethod = snapshot.value["payment_method"];
+        String riderName = snapshot.value["rider_name"];
+        String riderPhone = snapshot.value["rider_phone"];
 
         TripDetails tripDetails = TripDetails();
         tripDetails.destination = LatLng(destinationLat, destinationLng);
@@ -87,6 +89,8 @@ class PushNotificationService {
         tripDetails.pickup = LatLng(pickupLat, pickupLng);
         tripDetails.pickupAddress = pickupAddress;
         tripDetails.rideId = rideId;
+        tripDetails.riderName = riderName;
+        tripDetails.riderPhone = riderPhone;
 
         showDialog(
             context: context,
