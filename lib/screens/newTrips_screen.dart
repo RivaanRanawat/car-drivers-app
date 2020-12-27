@@ -33,6 +33,9 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
 
   double mapPaddingBottom = 0;
 
+  String buttonTitle = "ARRIVED";
+  Color buttonColor = UniversalVariables.colorGreen;
+
   var geoLocator = Geolocator();
   var locationOptions =
       LocationOptions(accuracy: LocationAccuracy.bestForNavigation);
@@ -44,6 +47,10 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
 
   String durationString = "";
   bool isRequestingDirection = false;
+
+  Timer timer;
+
+  int durationCounter = 0;
 
   void createMarker() {
     if (movingMarkerIcon == null) {
@@ -199,9 +206,31 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
                     ),
                     SizedBox(height: 25),
                     ReusableButton(
-                      text: "ARRIVED",
-                      color: UniversalVariables.colorGreen,
-                      onPressed: () {},
+                      text: buttonTitle,
+                      color: buttonColor,
+                      onPressed: () async {
+                        if(status == "accepted") {
+                          status = "arrived";
+                          rideRef.child("status").set(("arrived"));
+
+                          setState(() {
+                            buttonTitle = "START TRIP";
+                            buttonColor = UniversalVariables.colorAccentPurple;
+                          });
+
+                          HelperRepository.showProgressDialog(context);
+                          await getDirection(widget.tripDetails.pickup, widget.tripDetails.destination);
+                          Navigator.of(context).pop();
+                        } else if(status == "arrived") {
+                          status = "onTrip";
+                          rideRef.child("status").set("onTrip");
+                          setState(() {
+                            buttonTitle = "END TRIP";
+                            buttonColor = Colors.red[900];
+                            startTimer();
+                          });
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -230,7 +259,7 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
       "longitude": currentPos.longitude.toString(),
     };
 
-    rideRef.child("driver location").set(locationMap);
+    rideRef.child("driver_location").set(locationMap);
   }
 
   void getLocationUpdates() {
@@ -404,6 +433,13 @@ class _NewTripsScreenState extends State<NewTripsScreen> {
     setState(() {
       _circles.add(pickupCircle);
       _circles.add(destinationCircle);
+    });
+  }
+
+  void startTimer() {
+    const interval = Duration(seconds: 1);
+    timer = Timer.periodic(interval, (timer) {
+      durationCounter++;
     });
   }
 }
